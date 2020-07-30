@@ -33,20 +33,6 @@ exports.create = async (req, res) => {
     }
 }
 
-// Retrieve all Projects from the database.
-exports.findAll = (req, res) => {
-    Project.find({})
-        .then(data => {
-            res.send(data);
-        })
-        .catch(err => {
-            res.status(500).send({
-                message:
-                    err.message || "Some error occurred while retrieving projects."
-            });
-        });
-};
-
 // Retrieve all projects involving a particular user
 exports.findByUserId = (req, res) => {
     Project.find({ members: req.params.id })
@@ -90,7 +76,31 @@ exports.update = async (req, res) => {
     }
 }
 
+// Remove a member from a project by id.
+exports.removeMember = async (req, res) => {
+    try {
+        const project = await Project.findById(req.params.projectId, req.body)
+
+        project.members.filter(req.params.userId)
+
+        await project.save({
+            message: "Project was updated successfully."
+        })
+        res.send(project)
+    } catch (err) {
+        res.status(500).send({
+            message: "Error updating Review with id=" + id
+        })
+    }
+}
+
 exports.delete = async (req, res) => {
+    if (!req.params.id) {
+        res.status(200).send({
+            message: "The content body can not be empty."
+        });
+        return;
+    }
     try {
         const project = await Project.findByIdAndDelete(req.params.id)
         if (!project) res.status(404).send("No item found")
@@ -104,10 +114,10 @@ exports.delete = async (req, res) => {
     }
 }
 
-// Delete all Tutorials from the database.
-exports.deleteAll = async (req, res) => {
+// Delete all Projects of a particular lead from the database.
+exports.deleteByLeadId = async (req, res) => {
     try {
-        const project = await Project.deleteMany()
+        const project = await Project.deleteMany({ lead: req.params.id })
         if (!project) res.status(404).send("No item found")
         res.status(200).send({
             message: "Projects were deleted successfully!"

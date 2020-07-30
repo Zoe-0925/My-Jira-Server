@@ -2,7 +2,7 @@ const gql = require('graphql-tag');
 //const { gql } = require('apollo-server-express');
 
 
-const ProjectResolver = require("../resolvers/Project.resolver.js")
+const ProjectResolver = require("./resolvers/Project.resolver.js")
 
 const {
    GraphQLObjectType,
@@ -47,6 +47,7 @@ const LabelType = new GraphQLObjectType({
 const IssueType = new GraphQLObjectType({
    name: 'Issue',
    fields: () => ({
+      project:{ type: ProjectType },
       name: { type: GraphQLString },
       issueType: { type: GraphQLString },
       //enum: ['Epic', 'Task', "Subtask"]

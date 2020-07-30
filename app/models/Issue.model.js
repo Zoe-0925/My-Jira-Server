@@ -1,5 +1,9 @@
 module.exports = (Schema, model) => {
     var IssueSchema = new Schema({
+        project:{
+            type: Schema.Types.ObjectId,
+            ref: "Project"
+        },
         summary: String,
         issueType: {
             type: String,
@@ -11,10 +15,10 @@ module.exports = (Schema, model) => {
             enum: ['In Progress', 'Completed', "Not Started"],
             default: "Not Started"
         },
-        assignee: [{
+        assignee: {
             type: Schema.Types.ObjectId,
             ref: "User"
-        }],
+        },
         labels: [{
             type: Schema.Types.ObjectId,
             ref: "Label"
