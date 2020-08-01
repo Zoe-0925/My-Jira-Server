@@ -5,8 +5,11 @@ const logger = require("./app/loggers/logger")
 const requestLogger = require("./app/loggers/requestLogger")
 const expressRequestId = require('express-request-id')();
 const mongoose = require('mongoose');
+/**Run GraphQL Express */
 const { graphqlHTTP } = require('express-graphql');
-const {typeDefs} = require('./app/GraphQLSchemas/Schema.js');
+var { buildSchema } = require('graphql');
+//--------------------------------------
+const { typeDefs } = require('./app/Schema.js');
 const resolvers = require("./app/resolvers/Project.resolver.js")
 const { graphqlExpress } = require('apollo-server-express');
 const { makeExecutableSchema } = require('graphql-tools');
@@ -37,10 +40,12 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
-const myGraphQLSchema = makeExecutableSchema({
-  typeDefs,
-  resolvers
-});
+//const myGraphQLSchema = makeExecutableSchema({
+// typeDefs,
+//  resolvers
+//});
+
+var schema = buildSchema(typeDefs);
 
 
 
