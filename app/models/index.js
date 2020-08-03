@@ -12,11 +12,7 @@ var model = mongoose.model
 db.projects = require("./Project.model.js")(Schema, model);
 db.users = require("./User.model.js")(Schema, model);
 db.labels = require("./Label.model.js")(Schema, model);
-db.epics = require("./Epic.model.js")(Schema, model);
-db.tasks = require("./Task.model.js")(Schema, model);
-db.subtasks = require("./Subtask.model.js")(Schema, model);
-
+db.issues = require("./Issue.model.js")(Schema, model);
+db.comments = require("./Comment.model.js")(Schema, model);
 module.exports = db;
-
-
 

@@ -1,149 +1,107 @@
-const gql = require('graphql-tag');
-//const { gql } = require('apollo-server-express');
+const { makeExecutableSchema } = require('graphql-tools');
+const Project = require('./resolvers/Project.resolver.js');
+const Query = require('./resolvers/Query.resolver.js');
+const User = require('./resolvers/User.resolver.js');
+const Issue = require('./resolvers/Issue.resolver.js');
+//const Label = require('./resolvers/Label.resolver.js');
+const ISODate = require('./scalars/ISODate');
 
+const typeDefs = `
+type Query {
+    projects(query: UserId!): [Project]
+    project(id: ID!): Project
+    userLogin(query: UserAccount!): User
+    user(id: ID!):User
+    label(id: ID!):[Label]
+    epics(id: ID!):[Issue]
+    tasks(id: ID!):[Issue]
+    subtasks(id: ID!):[Issue]
+    issue(id: ID!):Issue
+  }
 
-const ProjectResolver = require("./resolvers/Project.resolver.js")
+  type Project {
+    _id: ID!
+    name: String!
+    key: String!
+    category: String
+    lead:User
+    members:[User]
+    image:String
+    epics:[Issue]
+    default_assignee: String
+    start_date: String
+  }
 
-const {
-   GraphQLObjectType,
-   GraphQLInt,
-   GraphQLString,
-   GraphQLList,
-   GraphQLSchema
-} = require('graphql');
+  type User{
+    _id: ID!
+    name: String!
+    email: String!
+    projects: Array
+    password: String!
+    projects:[Project]
+  }
 
-const ProjectType = new GraphQLObjectType({
-   name: 'Project',
-   fields: () => ({
-      name: { type: GraphQLString },
-      key: { type: GraphQLString },
-      category: { type: GraphQLString },
-      lead: { type: GraphQLString },
-      members: { type: new GraphQLList(UserType) },
-      image: { type: GraphQLString },
-      issues: { type: new GraphQLList(IssueType) },
-      default_assignee: { type: GraphQLString },
-      start_date: { type: GraphQLString },
-   })
-});
+  type Label{
+    _id: ID! 
+    name: String
+  }
 
-const UserType = new GraphQLObjectType({
-   name: 'User',
-   fields: () => ({
-      name: { type: GraphQLString },
-      email: { type: GraphQLString },
-      password: { type: GraphQLString },
-      projects: { type: new GraphQLList(ProjectType) }
-   })
-});
+  type Issue{
+    _id: ID! 
+    project:Project
+    summary: String
+    issueType: String
+    description: String
+    status: String
+    assignee: User
+    labels: [Label]
+    startDate: String
+    dueDate: String
+    reporter: User
+    parent: Issue,
+    chilren: [Issue],
+    comments: [Comment],
+  }
 
-const LabelType = new GraphQLObjectType({
-   name: 'Label',
-   fields: () => ({
-      name: { type: GraphQLString },
-   })
-});
+  input UserInput {
+      id: String! 
+      name:String
+      email:String!
+      password:String!
+  }
 
-const IssueType = new GraphQLObjectType({
-   name: 'Issue',
-   fields: () => ({
-      project:{ type: ProjectType },
-      name: { type: GraphQLString },
-      issueType: { type: GraphQLString },
-      //enum: ['Epic', 'Task', "Subtask"]
-      summary: { type: GraphQLString },
-      description: { type: GraphQLString },
-      status: { type: GraphQLString },
-      //enum: ['In Progress', 'Completed', "Not Started"],
-      //default: "Not Started"
-      assignee: { type: UserType },
-      labels: [{ type: LabelType }],
-      startDate: { type: GraphQLString },
-      dueDate: { type: GraphQLString },
-      reporter: { type: UserType },
-      parent: { type: GraphQLString },
-      chilren: [{ type: GraphQLString }],
-      comments: [{ type: CommentType }]
-   })
-});
+  input IssueInput{
+      userId: String!
+      issueType:String!
+      summary: String!
+      labels:[String]
+      description:[String]
+  }
 
-const CommentType = new GraphQLObjectType({
-   name: 'Comment',
-   fields: () => ({
-      author: { type: GraphQLString },
-      date: { type: GraphQLString },
-      description: { type: GraphQLString },
-      issue: { type: IssueType }
-   })
-});
+  input CommentInput{
+      author:String!
+      description:String!
+      issue:String!
+  }
 
-// Root Query
-const RootQuery = new GraphQLObjectType({
-   name: 'RootQueryType',
-   fields: {
-      projects: {
-         type: new GraphQLList(ProjectType),
-         args: {
-            id: { type: GraphQLString }
-         },
-         resolve(parent, args) {
-            return ProjectResolver.Query.findByUserId(parent, args)
-         }
-      },
-      projectById: {
-         type: ProjectType,
-         args: {
-            id: { type: GraphQLString }
-         },
-         resolve(parent, args) {
-            return ProjectResolver.Query.findOne(parent, args)
-         }
-      },
-      epicsAndTasks: {
-         type: new GraphQLList(IssueType),
-         resolve(parent, args) {
+  input UserId{
+    id: String! 
+  }
 
-            return []
+  input UserAccount{
+    email: String! 
+    password:String!
+  }
 
-         }
-      },
-      taskAndSubTask: {
-         type: new GraphQLList(RocketType),
-         args: {
-            id: { type: GraphQLString }
-         },
+  input UserEmail{
+    email: String! 
+  }
 
-         resolve(parent, args) {
-
-            return
-
-         }
-      },
-      issueAndComments: {
-         type: IssueType,
-         args: {
-            id: { type: GraphQLInt }
-         },
-         resolve(parent, args) {
-
-            return
-         }
-      }
-   }
-});
-
-module.exports = new GraphQLSchema({
-   query: RootQuery
-});
-
+  scalar ISODate
+`
 //TODO
-//How do I enable create from here?!...
+//Add mutation
+const resolvers = { Query, Project, Issue, User, ISODate };
 
-//type Mutation {
-//   create(name: String!, key: String!, category: String, userId: String!, image: String): Project
-//   update(id: ID!, name: String!, key: String!, category: String, image: String, default_assignee: String, lead: String): Project
-//   delete(id: ID!): Project
-//}
-
-
+module.exports= makeExecutableSchema({ typeDefs, resolvers });
 

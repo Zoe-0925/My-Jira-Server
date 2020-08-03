@@ -1,0 +1,8 @@
+const Label = require('../models/Label.model.js');
+const { promisify } = require('../helpers');
+
+const resolvers = {
+    label: (args) => promisify(Label.find({ userId: args.id })),
+};
+
+export default resolvers;

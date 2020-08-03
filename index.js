@@ -1,22 +1,18 @@
 const express = require("express");
-const bodyParser = require("body-parser");
 const cors = require("cors");
+//** mongodb ORM and Database  */
+const mongoose = require('mongoose');
+/**-----------------Loggers------------ */
 const logger = require("./app/loggers/logger")
 const requestLogger = require("./app/loggers/requestLogger")
 const expressRequestId = require('express-request-id')();
-const mongoose = require('mongoose');
-/**Run GraphQL Express */
-const { graphqlHTTP } = require('express-graphql');
-var { buildSchema } = require('graphql');
-//--------------------------------------
-const { typeDefs } = require('./app/Schema.js');
-const resolvers = require("./app/resolvers/Project.resolver.js")
-const { graphqlExpress } = require('apollo-server-express');
-const { makeExecutableSchema } = require('graphql-tools');
-
 var winston = require('winston');
 require('winston-timer')(winston);
-
+/**Run GraphQL Express */
+const schema = require('./app/Schema.js');
+const bodyParser = require("body-parser");
+const { ApolloServer, graphqlExpress, graphiqlExpress } = require('apollo-server-express');
+//--------------------------------------
 
 mongoose.connect(`mongodb+srv://${process.env.USERNAME}:<${process.env.PASSWORD}>@cluster0-8vkls.mongodb.net/test?retryWrites=true&w=majority`, {
   useNewUrlParser: true,
@@ -39,24 +35,10 @@ app.use(bodyParser.json());
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
 
-
-//const myGraphQLSchema = makeExecutableSchema({
-// typeDefs,
-//  resolvers
-//});
-
-var schema = buildSchema(typeDefs);
-
-
-
 // bodyParser is needed just for POST.
-app.use('/graphql', bodyParser.json(), graphqlExpress({ schema: myGraphQLSchema }));
-
-
-// simple route
-app.get("/", (req, res) => {
-  res.json({ message: "Welcome to bezkoder application." });
-});
+app.use('/graphql', bodyParser.json(), graphqlExpress({ schema }));
+// GraphiQL, a visual editor for queries
+app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));
 
 app.use(requestLogger);
 

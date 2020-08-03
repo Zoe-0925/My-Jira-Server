@@ -14,10 +14,10 @@ module.exports = (Schema, model) => {
         image: String,
         epics: [{
             type: Schema.Types.ObjectId,
-            ref: "Epic"
+            ref: "Issue"
         }],
         default_assignee: { type: String, default: 'Project Lead' },
-        start_date: { type: Date, default: Date.now }
+        start_date: { type: Date, default: Date.now },
     });
     return model('Project', ProjectSchema);
 }
