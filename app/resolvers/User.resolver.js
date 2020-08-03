@@ -3,7 +3,7 @@ const { promisify } = require('../helpers.js');
 
 
 const resolvers = {
-    userProjects: (args) => promisify(Project.find({ "members.id": args.id })),
+    projects: user => promisify(Project.find({ members: { $elemMatch: { $eq: user.id } } })),
 };
 
-module.exports=resolvers;
+module.exports = resolvers;

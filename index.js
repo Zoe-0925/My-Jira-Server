@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const config = require("./app/config")
 //** mongodb ORM and Database  */
 const mongoose = require('mongoose');
 /**-----------------Loggers------------ */
@@ -9,9 +10,9 @@ const expressRequestId = require('express-request-id')();
 var winston = require('winston');
 require('winston-timer')(winston);
 /**Run GraphQL Express */
-const schema = require('./app/Schema.js');
+const apollo = require('./app/graphql');
+const schema = require('./app/graphql/Schema.js');
 const bodyParser = require("body-parser");
-const { ApolloServer, graphqlExpress, graphiqlExpress } = require('apollo-server-express');
 //--------------------------------------
 
 mongoose.connect(`mongodb+srv://${process.env.USERNAME}:<${process.env.PASSWORD}>@cluster0-8vkls.mongodb.net/test?retryWrites=true&w=majority`, {
@@ -20,25 +21,21 @@ mongoose.connect(`mongodb+srv://${process.env.USERNAME}:<${process.env.PASSWORD}
 });
 
 const app = express();
+// parse requests of content-type - application/json
+app.use(bodyParser.json());
+// parse requests of content-type - application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: true }));
 
-require("./app/routes/Project.routes")(app);
+
+//require("./app/routes/Project.routes")(app);
 
 app.use(expressRequestId);
 
 app.use(cors({
-  origin: "http://localhost:3000"
+  origin: config.corsDomain,
 }));
 
-// parse requests of content-type - application/json
-app.use(bodyParser.json());
-
-// parse requests of content-type - application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: true }));
-
-// bodyParser is needed just for POST.
-app.use('/graphql', bodyParser.json(), graphqlExpress({ schema }));
-// GraphiQL, a visual editor for queries
-app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));
+schema.applyMiddleware({ app })
 
 app.use(requestLogger);
 
@@ -61,18 +58,27 @@ app.use((error, req, res, next) => {
 });
 
 
+
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
 app.listen(PORT).on("listening", () => {
   logger.info(`Server is running on port ${PORT}.`);
 });
 
+// Endpoint to check if the API is running
+app.get('/api/status', (req, res) => {
+  res.send({ status: 'ok' });
+});
+
+// Append apollo to our API
+apollo(app);
 
 
 //Syntax for winston timer:
 //winston.start_log('long-running-task', 'info'); 
 /* ... */
 //winston.stop_log('long-running-task', 'warn');
+
 
 
 

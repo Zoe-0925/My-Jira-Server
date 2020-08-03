@@ -2,7 +2,7 @@ const Comment = require('../models/Comment.model.js');
 const { promisify } = require('../helpers.js');
 
 const resolvers = {
-    Comment: (args) => promisify(Comment.find({ issueId: args.id })),
+    comments: issue => promisify(Comment.find({ issueId: issue.id })),
 };
 
 module.exports=resolvers;

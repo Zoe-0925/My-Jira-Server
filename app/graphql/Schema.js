@@ -1,17 +1,17 @@
 const { makeExecutableSchema } = require('graphql-tools');
-const Project = require('./resolvers/Project.resolver.js');
-const Query = require('./resolvers/Query.resolver.js');
-const User = require('./resolvers/User.resolver.js');
-const Issue = require('./resolvers/Issue.resolver.js');
+const Project = require('../resolvers/Project.resolver.js');
+const Query = require('../resolvers/Query.resolver.js');
+const User = require('../resolvers/User.resolver.js');
+const Issue = require('../resolvers/Issue.resolver.js');
 //const Label = require('./resolvers/Label.resolver.js');
-const ISODate = require('./scalars/ISODate');
+const ISODate = require('../scalars/ISODate');
+const { ApolloServer, gql } = require('apollo-server-express');
 
-const typeDefs = `
+const typeDefs = gql`
 type Query {
-    projects(query: UserId!): [Project]
     project(id: ID!): Project
-    userLogin(query: UserAccount!): User
     user(id: ID!):User
+    userLogin(query: UserAccount!): User
     label(id: ID!):[Label]
     epics(id: ID!):[Issue]
     tasks(id: ID!):[Issue]
@@ -27,16 +27,15 @@ type Query {
     lead:User
     members:[User]
     image:String
-    epics:[Issue]
+    issues:[Issue]
     default_assignee: String
-    start_date: String
+    start_date: ISODate
   }
 
   type User{
     _id: ID!
     name: String!
     email: String!
-    projects: Array
     password: String!
     projects:[Project]
   }
@@ -55,13 +54,21 @@ type Query {
     status: String
     assignee: User
     labels: [Label]
-    startDate: String
-    dueDate: String
+    startDate: ISODate
+    dueDate: ISODate
     reporter: User
     parent: Issue,
     chilren: [Issue],
     comments: [Comment],
   }
+
+type Comment{
+  _id: ID! 
+  author:User!
+  description: String!
+  date: ISODate
+  issue:Issue
+}
 
   input UserInput {
       id: String! 
@@ -103,5 +110,15 @@ type Query {
 //Add mutation
 const resolvers = { Query, Project, Issue, User, ISODate };
 
-module.exports= makeExecutableSchema({ typeDefs, resolvers });
+module.exports = new ApolloServer({
+  typeDefs,
+  resolvers,
+  playground: {
+    endpoint: '/graphql',
+    settings: {
+      'editor.theme': 'light'
+    }
+  }
+})
+
 

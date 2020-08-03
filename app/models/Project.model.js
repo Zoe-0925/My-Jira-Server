@@ -12,7 +12,7 @@ module.exports = (Schema, model) => {
             ref: "User"
         }],
         image: String,
-        epics: [{
+        issues: [{
             type: Schema.Types.ObjectId,
             ref: "Issue"
         }],
