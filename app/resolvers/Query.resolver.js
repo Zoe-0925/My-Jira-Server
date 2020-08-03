@@ -5,6 +5,7 @@ const { promisify } = require('../helpers.js');
 const resolvers = {
     project: (_, args) => promisify(Project.findById(args.id)),
     user: (_, args) => promisify(User.findById(args.id)),
+    userByEmail: (_, args) => promisify(User.find({ email: args.email })),
     userLogin: () => promisify(User.find({ email: args.email, password: args.password })),
     label: (_, args) => promisify(Label.find({ assignee: args.id })),
     epics: (_, args) => promisify(Issue.find({ assignee: args.id, issueType: "Epic" })),

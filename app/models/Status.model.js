@@ -1,12 +1,12 @@
 module.exports = (Schema,model) => {
-    var LabelSchema = new Schema({
-        _id:String,
+    var StatusSchema = new Schema({  
+         _id:String,
         name: String,
-        userId:{
+        user:{
             type: Schema.Types.ObjectId,
             ref: "User"
         },
     });
 
-    return  model('Label', LabelSchema);
+    return  model('Status', StatusSchema);
 }

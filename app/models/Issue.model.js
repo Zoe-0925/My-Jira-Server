@@ -1,5 +1,6 @@
 module.exports = (Schema, model) => {
     var IssueSchema = new Schema({
+        _id:String,
         project:{
             type: Schema.Types.ObjectId,
             ref: "Project"

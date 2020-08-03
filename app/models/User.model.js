@@ -1,5 +1,6 @@
 module.exports = (Schema, model) => {
     var UserSchema = new Schema({
+        _id:String,
         name: String,
         email: String,
         password: String,
