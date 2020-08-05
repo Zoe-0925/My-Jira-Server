@@ -14,7 +14,7 @@ const apollo = require('./app/graphql');
 const schema = require('./app/graphql/Schema.js');
 const bodyParser = require("body-parser");
 //--------------------------------------
-
+mongoose.Promise = global.Promise;
 mongoose.connect(`mongodb+srv://${process.env.USERNAME}:<${process.env.PASSWORD}>@cluster0-8vkls.mongodb.net/test?retryWrites=true&w=majority`, {
   useNewUrlParser: true,
   useUnifiedTopology: true

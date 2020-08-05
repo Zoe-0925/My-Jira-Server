@@ -5,11 +5,21 @@ const Label = require('../models/Label.model.js');
 const Comment = require('../models/Comment.model.js');
 const Status = require('../models/Status.model.js');
 const { promisify } = require('../helpers.js');
+const mongoose = require('mongoose');
 
 const resolvers = {
-    createProject: (_, args) => promisify(Project.create(args.input)),
-    updateProject: (_, args) => promisify(Project.findByIdAndUpdate(args.input.id, args.input)),
-    deleteProject: (_, args) => promisify(Project.findByIdAndDelete(args.id)),
+    createProject: async (_, { input }) => {
+        return await Project.create({
+            name: input.name, key: input.key, category: input.category, lead: input.lead,
+            members: [input.lead], image: input.image, default_assignee: input.default_assignee,
+            _id: input.id
+        }, (err, result) => {
+            if (err) reject(err);
+            else resolve(result);
+        });
+    },
+    updateProject: (_, { input }) => promisify(Project.findByIdAndUpdate(input.id, input)),
+    deleteProject: (_, { id }) => promisify(Project.findByIdAndDelete(id)),
     addProjectMember: (_, args) => promisify(Project.findById(args.id).aggregate([
         {
             $project: {
@@ -52,8 +62,8 @@ const resolvers = {
                 userId: args.input.user
             }),
             Issue.findById(args.input.issueId)]
-            issue.labels = [...issue.labels, args.input.labelId]
-            await issue.save()
+        issue.labels = [...issue.labels, args.input.labelId]
+        await issue.save()
     },
     createStatus: (_, args) => promisify(Status.create(args.input)),
     updateStatus: (_, args) => promisify(Status.findByIdAndUpdate(args.input.id, args.input)),

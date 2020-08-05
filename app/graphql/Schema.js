@@ -9,6 +9,7 @@ const { ApolloServer, gql } = require('apollo-server-express');
 
 const typeDefs = gql`
 type Query {
+  projects:[Project]
     project(id: ID!): Project
     user(id: ID!):User
     userByEmail(email:String!):User
@@ -212,7 +213,9 @@ module.exports = new ApolloServer({
     settings: {
       'editor.theme': 'light'
     }
-  }
+  },
 })
+
+
 
 

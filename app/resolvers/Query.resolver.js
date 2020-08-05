@@ -1,8 +1,12 @@
-const Project = require('../models/Project.model.js');
-const User = require('../models/User.model.js');
-const { promisify } = require('../helpers.js');
+const Project = require('../models/Project.model');
+const User = require('../models/User.model');
+const { promisify } = require('../helpers');
 
 const resolvers = {
+    async projects() {
+        return await Project.find();
+    },
+
     project: (_, args) => promisify(Project.findById(args.id)),
     user: (_, args) => promisify(User.findById(args.id)),
     userByEmail: (_, args) => promisify(User.find({ email: args.email })),
@@ -15,3 +19,5 @@ const resolvers = {
 };
 
 module.exports = resolvers;
+
+
